@@ -1,8 +1,6 @@
 #ifndef SIMP_C_
 #define SIMP_C_
 
-#include <stdint.h>
-#include <sys/types.h>
 #define PI 3.14159265358979f
 #define TAU (PI*2.0f)
 
