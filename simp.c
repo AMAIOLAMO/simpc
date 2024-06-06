@@ -29,13 +29,18 @@ float simpcLerp(float a, float b, float t) {
 uint32_t simpcLerpColor(uint32_t a, uint32_t b, float t) {
   uint32_t result = 0;
 
-  uint8_t ar = (a>>(8*0))&0xFF;
-  uint8_t ag = (a>>(8*1))&0xFF;
-  uint8_t ab = (a>>(8*2))&0xFF;
+  uint8_t aa = getAlpha(a);
+  uint8_t ar = getRed(a);
+  uint8_t ag = getGreen(a);
+  uint8_t ab = getBlue(a);
 
-  uint8_t br = (b>>(8*0))&0xFF;
-  uint8_t bg = (b>>(8*1))&0xFF;
-  uint8_t bb = (b>>(8*2))&0xFF;
+  uint8_t ba = getAlpha(b);
+  uint8_t br = getRed(b);
+  uint8_t bg = getGreen(b);
+  uint8_t bb = getBlue(b);
+
+  result |= (uint32_t)simpcLerp(aa, ba, t);
+  result <<= 8;
 
   result |= (uint32_t)simpcLerp(ab, bb, t);
   result <<= 8;
@@ -164,7 +169,7 @@ void simpcFillCircleSSAA(uint32_t *pixels, size_t width, size_t height, int x, i
   size_t ey = min(bry, height - 1);
 
   const size_t RES_SCALAR = 2;
-  const size_t RES_SCALAR_SQR = RES_SCALAR*RES_SCALAR;
+  const size_t TOTAL_SUB_PIXELS = RES_SCALAR*RES_SCALAR;
 
   for (size_t cy = iy; cy <= ey; cy++) {
     for (size_t cx = ix; cx <= ex; cx++) {
@@ -193,9 +198,9 @@ void simpcFillCircleSSAA(uint32_t *pixels, size_t width, size_t height, int x, i
         }
       }
 
-      r /= RES_SCALAR_SQR;
-      g /= RES_SCALAR_SQR;
-      b /= RES_SCALAR_SQR;
+      r /= TOTAL_SUB_PIXELS;
+      g /= TOTAL_SUB_PIXELS;
+      b /= TOTAL_SUB_PIXELS;
       // calculate averaged color 
 
       // set current pixel color with averaged color

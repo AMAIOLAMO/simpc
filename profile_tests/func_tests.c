@@ -36,6 +36,10 @@ void alpha_mix_test(void) {
   simpcAlphaMix(&pixels[index], 0xFFFFFFFF);
 }
 
+void save_ppm_test(void) {
+  simpcSavePPM(pixels, WIDTH, HEIGHT, "temp.ppm");
+}
+
 #define DEF_TEST(testFunc, tries) do { \
   printf(#testFunc" with %i tries", tries); \
   fflush(stdout); \
@@ -52,5 +56,6 @@ int main(void)
   DEF_TEST(fill_circle_ssaa_test, 5000);
   DEF_TEST(draw_arc_test, 5000);
   DEF_TEST(alpha_mix_test, 5000);
+  DEF_TEST(save_ppm_test, 500);
   return 0;
 }
