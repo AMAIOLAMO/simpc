@@ -10,3 +10,7 @@ example_imgs: example_imgs.c
 renderer: ./renderer/vrenderer.c
 	$(CC) $(CFLAGS) -o vrenderer ./renderer/vrenderer.c $(LINKFLAGS)
 
+clean:
+	rm ./example_imgs
+	rm ./vrenderer
+	rm ./images/*
