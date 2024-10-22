@@ -1,9 +1,35 @@
 #ifndef SIMP_C_
 #define SIMP_C_
 
-#define PI 3.14159265358979f
-#define TAU (PI*2.0f)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+// includes
+#include <stdint.h>
+#include <stdlib.h>
+
+#if defined(__STDC__) && (__STDC__VERSION__ >= 1999901L) // stdbool is supported (not for windows, they utilize MSC)
+    #include <stdbool.h>
+#elif !defined(__cplusplus) && !defined(bool) // otherwise, we define it ourselves
+    typedef enum bool { false = 0, true = !false } bool;
+#endif
+
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <math.h>
+
+#ifndef PI
+    #define PI 3.14159265358979f
+#endif
+
+#ifndef TAU
+    #define TAU (PI*2.0f)
+#endif
+
+// return defer utilizes a result value that is defined beforehand
+// assigns the value and goes to a predefined label called defer
 #define returnDefer(value) do { result = (value); goto defer; } while(0)
 
 typedef int Errno;
@@ -13,6 +39,13 @@ typedef int Errno;
 #define getGreen(color) getColorPart(color, 1)
 #define getBlue(color) getColorPart(color, 2)
 #define getAlpha(color) getColorPart(color, 3)
+
+// represents a single renderable frame
+/*typedef struct Frame {*/
+/*    size_t width;*/
+/*    size_t height;*/
+/*    uint32_t *colors;*/
+/*} Frame;*/
 
 float simpcGetAnimationTime(size_t frameIndex, size_t fps) {
   float dt = 1.0f / fps;
@@ -89,6 +122,7 @@ Errno simpcSavePPM(uint32_t *pixels, size_t width, size_t height, const char *fi
   FILE *file = fopen(filePath, "wb");
   if(file == NULL) returnDefer(errno);
 
+  // utilizes P6 version of PPM
   fprintf(file, "P6\n%zu %zu 255\n", width, height);
   if(ferror(file)) returnDefer(errno);
 
@@ -401,9 +435,12 @@ void simpcDrawBezier(uint32_t *pixels, size_t width, size_t height, int x1, int 
 
 // TODO: implement line culling in line algorithm  
 // TODO: re implement fill triangle to use horizontal fill algorithm  
-// TODO: implement basic 3D view of a Cube  
-// TODO: allow rendering of a video  
+// TODO: implement basic 3D view of a Cube
+// TODO: add implementation of vectors
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef SIMP_C_ */

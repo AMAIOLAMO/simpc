@@ -1,14 +1,6 @@
-#include <sys/types.h>
-#include <time.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <math.h>
-
 #include "simp.c"
+#include <time.h>
+#include <dirent.h>
 
 #define WIDTH 1000
 #define HEIGHT 800
@@ -220,11 +212,13 @@ void randomRectangles(void) {
   }
 }
 
+#define IMAGES_DIR "example_images"
+
 
 #define DEF_EXAMPLE(exampleFunc) do { \
       clock_t time = clock(); \
       exampleFunc(); \
-      if(trySaveToPPM("images/"#exampleFunc".ppm") == false) printf(#exampleFunc "-> ERR: %s\n", strerror(errno)); \
+      if(trySaveToPPM(IMAGES_DIR"/"#exampleFunc".ppm") == false) printf(#exampleFunc "-> ERR: %s\n", strerror(errno)); \
       else { \
       printf(#exampleFunc " OK -> took: %fs\n", endClock(time)); \
     } \
@@ -238,6 +232,15 @@ int main(int argc, char *argv[])
 {
   (void) argc;
   (void) argv;
+
+  DIR *imageDir = opendir(IMAGES_DIR);
+
+  if(imageDir == NULL) {
+    fprintf(stderr, "Error: cannot open directory "IMAGES_DIR" for writing\n");
+    return -1;
+  }
+
+  printf("rendering..\n");
 
   clock_t totalTime = clock();
 

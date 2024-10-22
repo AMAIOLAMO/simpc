@@ -79,7 +79,7 @@ typedef struct {
 
 typedef struct {
   pid_t pid;
-  int ioPipes[2];
+  int ioPipes[2]; // file descriptors representing the I/O pipes
 } FFMPEG;
 
 void ffmpegStartIO(FFMPEG *ffmpeg) {
@@ -113,7 +113,7 @@ int ffmpegBeginRendering(FFMPEG *ffmpeg, const char* outputPath, size_t width, s
   close(*ffmpegGetWritePipe(ffmpeg));
 
   close(STDIN_FILENO);
-  dup(*ffmpegGetReadPipe(ffmpeg));
+  dup(*ffmpegGetReadPipe(ffmpeg)); // duplicates the read pipe to our stdout
   // dup2(0, *readPipe);
 
   Cmd cmd = {0};
@@ -154,7 +154,7 @@ void ffmpegSendRawFrame(FFMPEG *ffmpeg, uint32_t *pixels, size_t width, size_t h
     write(
       *ffmpegGetWritePipe(ffmpeg),
       &pixels[pixelIndex],
-      sizeof(char)*3
+      sizeof(uint8_t)*3
     );
   }
 }
@@ -223,7 +223,9 @@ void animationUnload(Animation *animation) {
 bool ffmpegRenderAnimation(FFMPEG *ffmpeg, Animation *animation, const char *outputPath) {
   ffmpegStartIO(ffmpeg);
 
-  int renderErr = ffmpegBeginRendering(ffmpeg, outputPath, animation->getWidth(), animation->getHeight(), animation->getFps());
+  int renderErr = ffmpegBeginRendering(ffmpeg, outputPath,
+          animation->getWidth(), animation->getHeight(),
+          animation->getFps());
 
   if(renderErr < 0) {
     fprintf(stderr, LOG_PREFIX"Err: %s\n", strerror(errno));
@@ -234,7 +236,9 @@ bool ffmpegRenderAnimation(FFMPEG *ffmpeg, Animation *animation, const char *out
 
 
   for (size_t frameIndex = 0; frameIndex < animation->getTotalFrames(); frameIndex++) {
-    animation->updateFrame(pixels, animation->getWidth(), animation->getHeight(), frameIndex, animation->getTotalFrames(), animation->getFps());
+    animation->updateFrame(pixels, animation->getWidth(),
+            animation->getHeight(), frameIndex, animation->getTotalFrames(),
+            animation->getFps());
 
     ffmpegSendRawFrame(ffmpeg, pixels, animation->getWidth(), animation->getHeight());
   }
@@ -249,7 +253,7 @@ bool ffmpegRenderAnimation(FFMPEG *ffmpeg, Animation *animation, const char *out
 int main(int argc, char *argv[])
 {
   if(argc != 2+1) {
-    fprintf(stderr, "Err: did not specify animation library path\nUsage: vrenderer <animationPlugPath>\n");
+    fprintf(stderr, "Err: did not specify animation library path\nUsage: vrenderer <animationPlugPath> <outputPath>\n");
     return 1;
   }
 
